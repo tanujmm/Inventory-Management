@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Update Stock</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Update Stock</h2>
+
+  <label>Item ID:</label><input type="text" id="itemId"><br>
+  <label>New Stock:</label><input type="number" id="newStock"><br>
+  <button onclick="updateStock()">Update</button>
+
+  <script>
+    const connToken = "90934956|-31949252301077115|90959516";
+    const dbName = "INVENTORYdb";
+    const relName = "ITEMSDATA";
+
+    function updateStock() {
+      let id = $("#itemId").val();
+      let stock = parseInt($("#newStock").val());
+
+      let data = { openingStock: stock };
+
+      $.ajax({
+        url: "http://127.0.0.1:3000/jpdb",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          token: connToken,
+          cmd: "UPDATE",
+          dbName,
+          rel: relName,
+          jsonStr: JSON.stringify(data),
+          primaryKey: "itemId",
+          primaryKeyValue: id
+        }),
+        success: (res) => alert("✅ Stock updated!"),
+        error: (err) => console.error("❌ Error:", err)
+      });
+    }
+  </script>
+</body>
+
+</html>

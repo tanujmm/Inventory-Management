@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Item Report</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #f2f2f2;
+    }
+
+    input {
+      padding: 5px;
+      margin: 5px;
+    }
+
+    button {
+      padding: 8px 15px;
+    }
+
+    #msg {
+      margin-left: 10px;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Item Report</h2>
+
+  <label>From Item ID:</label>
+  <input type="text" id="fromId" placeholder="Enter starting Item ID">
+  <label>To Item ID:</label>
+  <input type="text" id="toId" placeholder="Enter ending Item ID">
+  <button id="btnReport" onclick="generateReport()">Generate Report</button>
+  <span id="msg"></span>
+
+  <table id="itemTable">
+    <thead>
+      <tr>
+        <th>Item ID</th>
+        <th>Item Name</th>
+        <th>Current Stock</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const dbName = "INVENTORYdb";
+    const relationName = "ITEMSDATA";
+    const connToken = "90934956|-31949252301077115|90959516"; // your JPDB token
+
+    function idInRange(id, fromId, toId) {
+      const nId = Number(id);
+      const nFrom = Number(fromId);
+      const nTo = Number(toId);
+      if (!Number.isNaN(nId) && !Number.isNaN(nFrom) && !Number.isNaN(nTo)) {
+        return nId >= nFrom && nId <= nTo;
+      }
+      return String(id) >= String(fromId) && String(id) <= String(toId);
+    }
+
+    async function fetchAllRecords(limitPerPage = 100) {
+      let all = [];
+      let page = 1;
+
+      while (true) {
+        const reqBody = {
+          token: connToken,
+          cmd: "GET_ALL",
+          dbName: dbName,
+          rel: relationName,
+          page: page,
+          limit: limitPerPage
+        };
+
+        try {
+          const res = await $.ajax({
+            url: "http://127.0.0.1:3000/jpdb",  // call proxy instead of JPDB directly
+            method: "POST",
+            data: JSON.stringify(reqBody),
+            contentType: "application/json"
+          });
+
+          if (!res || res.status !== 200) break;
+
+          let parsed = JSON.parse(res.data);
+          const json_records = parsed.json_records || [];
+          all = all.concat(json_records);
+
+          if (json_records.length < limitPerPage) break;
+          page++;
+        } catch (err) {
+          console.error("AJAX error fetching records:", err);
+          break;
+        }
+      }
+
+      return all;
+    }
+
+    async function generateReport() {
+      const $msg = $("#msg");
+      const fromId = $("#fromId").val().trim();
+      const toId = $("#toId").val().trim();
+
+      if (!fromId || !toId) {
+        alert("Please enter both From and To Item IDs.");
+        return;
+      }
+
+      $msg.text("Loading records... please wait.");
+      const records = await fetchAllRecords(100);
+      $msg.text("");
+
+      const tbody = $("#itemTable tbody");
+      tbody.empty();
+
+      if (!records || records.length === 0) {
+        tbody.append(`<tr><td colspan="3">No records found in the database.</td></tr>`);
+        return;
+      }
+
+      const filtered = records.filter(r => idInRange(r.record.itemId, fromId, toId));
+      if (filtered.length === 0) {
+        tbody.append(`<tr><td colspan="3">No items found in given range.</td></tr>`);
+        return;
+      }
+
+      filtered.forEach(r => {
+        const item = r.record;
+        tbody.append(`
+        <tr>
+          <td>${item.itemId}</td>
+          <td>${item.itemName}</td>
+          <td>${item.openingStock}</td>
+        </tr>
+      `);
+      });
+    }
+  </script>
+</body>
+
+</html>

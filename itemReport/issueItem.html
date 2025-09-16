@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Issue Item</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Issue Item</h2>
+
+  <label>Item ID:</label><input type="text" id="itemId"><br>
+  <label>Quantity to Issue:</label><input type="number" id="issueQty"><br>
+  <button onclick="issueItem()">Issue</button>
+
+  <script>
+    const connToken = "90934956|-31949252301077115|90959516";
+    const dbName = "INVENTORYdb";
+    const relName = "ITEMSDATA";
+
+    function issueItem() {
+      let id = $("#itemId").val();
+      let qty = parseInt($("#issueQty").val());
+
+      // First: fetch current stock
+      $.ajax({
+        url: "http://127.0.0.1:3000/jpdb",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          token: connToken,
+          cmd: "GET_BY_KEY",
+          dbName,
+          rel: relName,
+          jsonStr: JSON.stringify({ itemId: id })
+        }),
+        success: (res) => {
+          if (!res.data || res.data.length === 0) {
+            alert("❌ Item not found!");
+            return;
+          }
+
+          let item = res.data[0].record;
+          let newStock = item.openingStock - qty;
+          if (newStock < 0) {
+            alert("❌ Not enough stock!");
+            return;
+          }
+
+          // Update stock
+          $.ajax({
+            url: "http://127.0.0.1:3000/jpdb",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              token: connToken,
+              cmd: "UPDATE",
+              dbName,
+              rel: relName,
+              jsonStr: JSON.stringify({ openingStock: newStock }),
+              primaryKey: "itemId",
+              primaryKeyValue: id
+            }),
+            success: () => alert("✅ Item issued! Remaining stock: " + newStock),
+            error: (err) => console.error("❌ Error updating:", err)
+          });
+        },
+        error: (err) => console.error("❌ Error fetching item:", err)
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Add Item</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Add New Item</h2>
+
+  <label>Item ID:</label><input type="text" id="itemId"><br>
+  <label>Item Name:</label><input type="text" id="itemName"><br>
+  <label>Opening Stock:</label><input type="number" id="openingStock"><br>
+  <button onclick="addItem()">Save Item</button>
+
+  <script>
+    const connToken = "90934956|-31949252301077115|90959516";
+    const dbName = "INVENTORYdb";
+    const relName = "ITEMSDATA";
+
+    function addItem() {
+      let data = {
+        itemId: $("#itemId").val(),
+        itemName: $("#itemName").val(),
+        openingStock: parseInt($("#openingStock").val())
+      };
+
+      $.ajax({
+        url: "http://127.0.0.1:3000/jpdb",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          token: connToken,
+          cmd: "PUT",
+          dbName,
+          rel: relName,
+          jsonStr: JSON.stringify(data)
+        }),
+        success: (res) => alert("✅ Item added successfully!"),
+        error: (err) => console.error("❌ Error:", err)
+      });
+    }
+  </script>
+</body>
+
+</html>

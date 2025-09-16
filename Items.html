@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item Management Page</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="page-header text-center">
+      <h3>Item Management Page</h3>
+    </div>
+    <form action="" id="itemForm" method="post">
+      <div class="form-group row">
+        <label for="" class="col-form-label col-sm-3 text-center my-auto">Item
+          ID:</label>
+        <div class="col-sm-9">
+          <!-- <input type="text" id="itemId" class="form-control" onchange="checkItem()" /> -->
+          <input type="text" id="itemId" class="form-control" onchange="getItem()" />
+
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="" class="col-form-label col-sm-3 text-center m-auto">
+          Item Name:
+        </label>
+        <div class="col-sm-9">
+          <input type="text" id="itemName" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="" class="col-form-label col-sm-3 text-center m-auto">
+          Opening Stock:
+        </label>
+        <div class="col-sm-9">
+          <input type="number" id="openingStock" step="0.001" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="" class="col-form-label col-sm-3 text-center m-auto">
+          Unit Of Measurment
+        </label>
+        <div class="col-sm-9">
+          <input type="text" id="uom" class="form-control" />
+        </div>
+      </div>
+
+
+
+      <div>
+        <nav class="navbar navbar-default text-center" style="border: none">
+          <button class="btn btn-lg btn-primary" id="new" onclick="newForm()" type="button">New</button><button
+            class="btn btn-lg btn-primary" id="save" onclick="saveItem()" type="button">Save</button>
+          <button class="btn btn-lg btn-primary" id="edit" onclick="changeData()" type="button">Update </button>
+
+          <button class="btn btn-lg btn-primary" id="reset" type="reset">Resets</button>
+          <button class="btn btn-lg btn-primary" id="edit" onclick="deleteItem()" type="button">Delete </button>
+        </nav>
+
+
+      </div>
+    </form>
+  </div>
+  <script type="text/javascript" src="http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+  <script type="text/javascript" src="item.js"></script>
+</body>
+
+</html>
